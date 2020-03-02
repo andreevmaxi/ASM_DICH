@@ -1,0 +1,64 @@
+Turbo Assembler	 Version 4.1	    02/10/20 27:12:19	    Page 1
+maksoni.asm
+
+
+
+      1	0000			     .model tiny
+      2	0000			     .code
+      3				     org 100h
+      4
+      5	0100  B4 09		     start:	     mov ah, 09h
+      6	0102  BA 010Cr				     mov dx, offset KorobCom
+      7	0105  CD 21				     int 21h
+      8	0107  B8 4C00				     mov ax, 4c00h
+      9	010A  CD 21				     int 21h
+     10	      =000D		     CR		     equ 13
+     11	      =000A		     LF		     equ 10
+     12	      =	CR, LF		     CRLF	     equ CR, LF
+     13
+     14	010C  0D 0A 4B 6F 72 6F	62+  KorobCom	     db	CRLF,"Korob&Co will be the best	company	of this	word,"
+     15	      26 43 6F 20 77 69	6C+
+     16	      6C 20 62 65 20 74	68+
+     17	      65 20 62 65 73 74	20+
+     18	      63 6F 6D 70 61 6E	79+
+     19	      20 6F 66 20 74 68	69+
+     20	      73 20 77 6F 72 64	2C
+     21	013D  20 62 65 6C 69 76	65+		     db	" belive me!",CRLF,"$"
+     22	      20 6D 65 21 0D 0A	24
+     23				     end Start
+Turbo Assembler	 Version 4.1	    02/10/20 27:12:19	    Page 2
+Symbol Table
+
+
+
+
+Symbol Name			  Type	 Value
+
+??DATE				  Text	 "02/10/20"
+??FILENAME			  Text	 "maksoni "
+??TIME				  Text	 "27:12:19"
+??VERSION			  Number 040A
+@32BIT				  Text	 0
+@CODE				  Text	 DGROUP
+@CODESIZE			  Text	 0
+@CPU				  Text	 0101H
+@CURSEG				  Text	 _TEXT
+@DATA				  Text	 DGROUP
+@DATASIZE			  Text	 0
+@FILENAME			  Text	 MAKSONI
+@INTERFACE			  Text	 000H
+@MODEL				  Text	 1
+@STACK				  Text	 DGROUP
+@WORDSIZE			  Text	 2
+CR				  Number 000D
+CRLF				  Text	 CR, LF
+KOROBCOM			  Byte	 DGROUP:010C
+LF				  Number 000A
+START				  Near	 DGROUP:0100
+
+Groups & Segments		  Bit Size Align  Combine Class
+
+DGROUP				  Group
+  _DATA				  16  0000 Word	  Public  DATA
+  _TEXT				  16  014B Word	  Public  CODE
+
