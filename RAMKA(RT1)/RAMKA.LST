@@ -1,4 +1,4 @@
-Turbo Assembler	 Version 4.1	    03/02/20 05:19:47	    Page 1
+Turbo Assembler	 Version 4.1	    03/02/20 08:34:51	    Page 1
 ramka.ASM
 
 
@@ -20,120 +20,269 @@ ramka.ASM
      15
      16	0100  BF B800		     Start:	     mov DI, ConstGraph
      17	0103  8E C7				     mov ES, DI
-     18	0105  BF 07CA				     mov DI, 37d*2d + 80d*2d*12d
-     19	0108  B0 DB				     mov AL, ConstCube
-     20	010A  B4 9E				     mov AH, ConstColor
-     21	010C  8B D8				     mov BX, AX
-     22	010E  B9 0001				     mov CX, 1
-     23	0111  B2 01				     mov DL, 1
-     24	0113  B6 50				     mov DH, 80d
-     25	0115  E8 0025				     call BoxPrint
-     26	0118  50				     push AX
-     27	0119  53				     push BX
-     28	011A  52				     push DX
-     29	011B  B4 86				     mov ah, 86h
-     30	011D  B9 001E				     mov CX, 001eH
-     31	0120  BA 8480				     mov DX, 8480H
-     32	0123  CD 15				     int 15h
-     33	0125  5A				     pop DX
-     34	0126  5B				     pop BX
-     35	0127  58				     pop AX
-     36	0128  B9 001A				     mov CX, 26
-     37	012B  B2 0C				     mov DL, 12
-     38	012D  E8 000D				     call BoxPrint
-     39				     ;=========================================================
-     40				     ; ENTRY:	     AL	- char of first	and last symbol	of line
-     41				     ;		     AH	- color	of first symbol
+     18	0105  BF 072C				     mov DI, 38d*2d + 80d*2d*11d
+     19	0108  57				     push DI
+     20	0109  B0 DB				     mov AL, ConstCube
+     21	010B  B4 9E				     mov AH, ConstColor
+     22	010D  8B D8				     mov BX, AX
+     23	010F  B9 0001				     mov CX, 1d
+     24	0112  B2 01				     mov DL, 1d
+     25	0114  B6 50				     mov DH, 80d
+     26	0116  E8 005E				     call BoxReamer
+     27	0119  E8 00C3				     call UKRflag
+     28	011C  5F				     pop DI
+     29	011D  B3 1C				     mov BL, 1Ch
+     30	011F  E8 00F7				     call KeyExit
+     31	0122  C3				     ret
+     32
+     33				     ;=========================================================
+     34				     ; ENTRY:	     AL	- char of first	and last symbol	of line
+     35				     ;		     AH	- color	of first symbol
+     36				     ;		     CX	- number of line
+     37				     ;		     ES:DI - adress of first symbol in line
+     38				     ;		     BL	- char of middle symbol	of line
+     39				     ;		     BH	- color	of middle symbol of line
+     40				     ; DESTR:
+     41				     ; EXIT:	     ES:DI - first adress after	a line
      42				     ;		     CX	- number of line
-     43				     ;		     ES:DI - adress of first symbol in line
-     44				     ;		     BL	- char of middle symbol	of line
-     45				     ;		     BH	- color	of middle symbol of line
-     46				     ; DESTR:
-     47				     ; EXIT:	     ES:DI - first adress after	a line
-     48				     ;		     CX	- number of line
-     49				     ;=========================================================
+     43				     ;=========================================================
+     44
+     45	0123			     PrintLine	     proc
+     46
+     47	0123  FC				     cld
+     48	0124  AB				     stosw
+     49	0125  51				     push CX
      50
-     51	0130			     PrintLine	     proc
-     52
-     53	0130  FC				     cld
-     54	0131  AB				     stosw
-     55	0132  51				     push CX
-     56
-     57	0133  50				     push AX
-Turbo Assembler	 Version 4.1	    03/02/20 05:19:47	    Page 2
+     51	0126  50				     push AX
+     52	0127  8B C3				     mov AX, BX
+     53
+     54	0129  AB				     @@Next: stosw
+     55	012A  E2 FD				     LOOP @@Next
+     56	012C  58				     pop AX
+     57	012D  AB				     stosw
+Turbo Assembler	 Version 4.1	    03/02/20 08:34:51	    Page 2
 ramka.ASM
 
 
 
-     58	0134  8B C3				     mov AX, BX
-     59
-     60	0136  AB				     @@Next: stosw
-     61	0137  E2 FD				     LOOP @@Next
-     62	0139  58				     pop AX
-     63	013A  AB				     stosw
-     64	013B  59				     pop CX
-     65	013C  C3				     ret
-     66	013D			     PrintLine	     endp
-     67
-     68				     ;========================================================
-     69				     ; ENTRY:	     ES:DI - begining adress of	box
-     70				     ;		     AL	- char of corner of box
-     71				     ;		     AH	- color	of corner
-     72				     ;		     CX	- width	of box
-     73				     ;		     BL	- char of ramka	symbol of box
-     74				     ;		     BH	- color	of ramka symbol	of box
-     75				     ;		     DL	- hieght of box	without	conture
-     76				     ;		     DH	- number of newline
-     77				     ;========================================================
-     78	013D			     BoxPrint	     proc
-     79
-     80	013D  E8 FFF0				     call PrintLine
-     81	0140  52				     push DX
-     82	0141  50				     push AX
-     83	0142  53				     push BX
-     84	0143  8B C3				     mov AX, BX
-     85	0145  BB 0000				     mov BX, 0
-     86	0148  51				     push CX
-     87	0149  8A CA				     mov CL, DL
-     88	014B  B5 00				     mov CH, 0
-     89	014D  51				     @@NextLine:     push CX
-     90	014E  B9 0000						     mov CX, 0
-     91	0151  8A CE						     mov CL, DH
-     92	0153  03 F9						     add DI, CX	; DH
-     93	0155  03 F9						     add DI, CX
-     94	0157  59						     pop CX
-     95	0158  8A D1						     mov DL, CL
-     96	015A  59						     pop CX
-     97	015B  2B F9						     sub DI, CX
-     98	015D  83 EF 04						     sub DI, 4
-     99	0160  2B F9						     sub DI, CX
-    100	0162  E8 FFCB						     call PrintLine
-    101	0165  51						     push CX
-    102	0166  B5 00						     mov CH, 0
-    103	0168  8A CA						     mov CL, DL; DL
-    104	016A  E2 E1				     LOOP @@NextLine
-    105	016C  B9 0000				     mov CX, 0
-    106	016F  8A CE				     mov CL, DH
-    107	0171  03 F9				     add DI, CX
-    108	0173  03 F9				     add DI, CX
-    109	0175  59				     pop CX
-    110	0176  5B				     pop BX
-    111	0177  58				     pop AX
-    112	0178  5A				     pop DX
-    113	0179  2B F9				     sub DI, CX
-    114	017B  2B F9				     sub DI, CX
-Turbo Assembler	 Version 4.1	    03/02/20 05:19:47	    Page 3
+     58	012E  59				     pop CX
+     59	012F  C3				     ret
+     60	0130			     PrintLine	     endp
+     61
+     62				     ;========================================================
+     63				     ; ENTRY:	     ES:DI - begining adress of	box
+     64				     ;		     AL	- char of corner of box
+     65				     ;		     AH	- color	of corner
+     66				     ;		     CX	- width	of box
+     67				     ;		     BL	- char of ramka	symbol of box
+     68				     ;		     BH	- color	of ramka symbol	of box
+     69				     ;		     DL	- hieght of box	without	conture
+     70				     ;		     DH	- number of newline
+     71				     ;========================================================
+     72	0130			     BoxPrint	     proc
+     73
+     74	0130  E8 FFF0				     call PrintLine
+     75	0133  52				     push DX
+     76	0134  50				     push AX
+     77	0135  53				     push BX
+     78	0136  8B C3				     mov AX, BX
+     79	0138  BB 0000				     mov BX, 0d
+     80	013B  51				     push CX
+     81	013C  8A CA				     mov CL, DL
+     82	013E  B5 00				     mov CH, 0d
+     83	0140  51				     @@NextLine:     push CX
+     84	0141  B9 0000						     mov CX, 0d
+     85	0144  8A CE						     mov CL, DH
+     86	0146  03 F9						     add DI, CX	; DH
+     87	0148  03 F9						     add DI, CX
+     88	014A  59						     pop CX
+     89	014B  8A D1						     mov DL, CL
+     90	014D  59						     pop CX
+     91	014E  2B F9						     sub DI, CX
+     92	0150  83 EF 04						     sub DI, 4d
+     93	0153  2B F9						     sub DI, CX
+     94	0155  E8 FFCB						     call PrintLine
+     95	0158  51						     push CX
+     96	0159  B5 00						     mov CH, 0d
+     97	015B  8A CA						     mov CL, DL; DL
+     98	015D  E2 E1				     LOOP @@NextLine
+     99	015F  B9 0000				     mov CX, 0d
+    100	0162  8A CE				     mov CL, DH
+    101	0164  03 F9				     add DI, CX
+    102	0166  03 F9				     add DI, CX
+    103	0168  59				     pop CX
+    104	0169  5B				     pop BX
+    105	016A  58				     pop AX
+    106	016B  5A				     pop DX
+    107	016C  2B F9				     sub DI, CX
+    108	016E  2B F9				     sub DI, CX
+    109	0170  83 EF 04				     sub DI, 4d
+    110	0173  E8 FFAD				     call PrintLine
+    111	0176  C3				     ret
+    112	0177			     BoxPrint	     endp
+    113
+    114				     ;========================================================
+Turbo Assembler	 Version 4.1	    03/02/20 08:34:51	    Page 3
 ramka.ASM
 
 
 
-    115	017D  83 EF 04				     sub DI, 4
-    116	0180  E8 FFAD				     call PrintLine
-    117	0183  C3				     ret
-    118	0184			     BoxPrint	     endp
-    119
-    120				     end Start
-Turbo Assembler	 Version 4.1	    03/02/20 05:19:47	    Page 4
+    115				     ; ENTRY:	     ES:DI - begining adress of	first box
+    116				     ;		     AL	- char of corner of box
+    117				     ;		     AH	- color	of corner
+    118				     ;		     CX	- width	of first box
+    119				     ;		     BL	- char of ramka	symbol of box
+    120				     ;		     BH	- color	of ramka symbol	of box
+    121				     ;		     DL	- hieght of first box without conture
+    122				     ;		     DH	- number of newline
+    123				     ;
+    124				     ; DESTR:	     CX, DX
+    125				     ;========================================================
+    126	0177			     BoxReamer	     proc
+    127	0177  57				     @@HereWeGoAgain:	     push DI ; to save the line	number
+    128	0178  83 F9 4E				     cmp CX, 78d ; check CX to not to went out from the	line
+    129	017B  73 08				     jae @@MaxWidth ; if CX is went out
+    130	017D  80 FA 17				     cmp DL, 23d ; check DL to not to went out from the	cmd
+    131	0180  73 0E				     jae @@MaxHeight ; if DL went out
+    132	0182  EB 11 90				     jmp @@PrintIfOK ; if Checks were good
+    133
+    134	0185  B9 004E				     @@MaxWidth:     mov CX, 78d ; If cx, > 78,	then we	need to	write, but only	1
+    135	0188  80 FA 17						     cmp DL, 23d ; here	we check DL
+    136	018B  77 03						     ja	@@MaxHeight ; if DL > 23
+    137	018D  EB 06 90						     jmp @@PrintIfOK ; If Checks were good
+    138
+    139	0190  B2 17				     @@MaxHeight:    mov DL, 23d   ; if	DL, > 23, like 24, then	we need	to write
+    140	0192  EB 01 90						     jmp @@PrintIfOK ; JUST PRINT!
+    141
+    142	0195  E8 FF98				     @@PrintIfOK:    call BoxPrint  ; here we write, when everything is	done
+    143	0198  5F						     pop DI
+    144	0199  41						     inc CX ; ----------
+    145	019A  41						     inc CX ; Expandes box in 2	ways (here in width)
+    146	019B  FE C2						     inc DL ; ----------
+    147	019D  FE C2						     inc DL ; Expandes box in 2	ways(here in height)
+    148
+    149	019F  E8 0024						     call NewPosOfBox ;	Changes	DI to position we need
+    150
+    151	01A2  80 FA 18						     cmp DL, 24d
+    152	01A5  76 08						     jbe @@SkipEnd ; If	< then we didn't wrote the last	box
+    153	01A7  83 F9 4F						     cmp CX, 79d
+    154	01AA  76 03						     jbe @@SkipEnd ; if	<= then	we didn't wrote	the last box
+    155	01AC  EB 06 90						     jmp @@EndReamer ; We ended	writing
+    156
+    157	01AF  E8 0003						     @@SkipEnd:	     call LittleSleep	; We wait to see a progress
+    158	01B2  EB C3								     jmp @@HereWeGoAgain; we start writing again
+    159
+    160	01B4  C3				     @@EndReamer:    ret
+    161	01B5			     BoxReamer	     endp
+    162
+    163				     ;=============================================================
+    164				     ; JUST AN INTERAPTION IN A	HALF OF	SEC
+    165				     ;=============================================================
+    166
+    167	01B5			     LittleSleep     proc
+    168
+    169	01B5  50				     push AX
+    170	01B6  52				     push DX
+    171	01B7  51				     push CX
+Turbo Assembler	 Version 4.1	    03/02/20 08:34:51	    Page 4
+ramka.ASM
+
+
+
+    172	01B8  B4 86				     mov ah, 86h
+    173	01BA  B9 0002				     mov CX, 0002H
+    174	01BD  BA 9090				     mov DX, 9090H
+    175	01C0  CD 15				     int 15h
+    176	01C2  59				     pop CX
+    177	01C3  5A				     pop DX
+    178	01C4  58				     pop AX
+    179
+    180	01C5  C3				     ret
+    181	01C6			     LittleSleep     endp
+    182
+    183				     ;===============================================================
+    184				     ; ENTRY: DI - position of prev box
+    185				     ; EXIT:  DI - position of next box
+    186				     ;===============================================================
+    187
+    188	01C6			     NewPosOfBox     proc
+    189	01C6  81 FF 00A1			     cmp DI, 80d*2d + 1d
+    190	01CA  76 0A				     jbe @@LittleDI   ;	If prev	box was	too close to the edge of console
+    191	01CC  81 EF 00A0			     sub DI, 80d*2d
+    192	01D0  83 EF 02				     sub DI, 2d	      ;	One line back and one symbol to	expansion of box
+    193	01D3  EB 09 90				     jmp @@EndMark
+    194
+    195	01D6  83 FF 01				     @@LittleDI:     cmp DI, 1d
+    196	01D9  76 03						     jbe @@EndMark ; if	we are in the begin of cmd
+    197	01DB  83 EF 02						     sub DI, 2d
+    198	01DE  C3				     @@EndMark:	     ret
+    199	01DF			     NewPosOfBox     endp
+    200
+    201				     ;========================================================
+    202				     ; ENTRY:	     ES	- block	of videomemory
+    203				     ;
+    204				     ; JUST writes a typical ukrain flag
+    205				     ;======================================
+    206	01DF			     UKRflag	     proc
+    207	01DF  50				     push ax
+    208	01E0  53				     push bx
+    209	01E1  51				     push cx
+    210	01E2  52				     push dx
+    211	01E3  57				     push di
+    212
+    213	01E4  BF 0000				     mov DI, 0h
+    214	01E7  B2 4E				     mov DL, 78d
+    215	01E9  B9 000D				     mov CX, 13d ; all 23d
+    216	01EC  B6 50				     mov DH, 80d
+    217	01EE  B0 DB				     mov AL, ConstCube
+    218	01F0  B4 09				     mov AH, 09h
+    219	01F2  8B D8				     mov BX, AX
+    220	01F4  51				     @@TopFlag:	     push CX
+    221	01F5  B9 0000						     mov CX, 0
+    222	01F8  8A CA						     mov CL, DL
+    223	01FA  E8 FF26						     call PrintLine
+    224	01FD  59						     pop CX
+    225	01FE  E2 F4				     loop @@TopFlag
+    226
+    227	0200  B4 0E				     mov AH, 0Eh
+    228	0202  8A FC				     mov BH, AH
+Turbo Assembler	 Version 4.1	    03/02/20 08:34:51	    Page 5
+ramka.ASM
+
+
+
+    229	0204  B9 000C				     mov CX, 12d
+    230	0207  51				     @@BottomFlag:   push CX
+    231	0208  B9 0000						     mov CX, 0
+    232	020B  8A CA						     mov CL, DL
+    233	020D  E8 FF13						     call PrintLine
+    234	0210  59						     pop CX
+    235	0211  E2 F4				     loop @@BottomFlag
+    236
+    237	0213  5F				     pop di
+    238	0214  5A				     pop dx
+    239	0215  59				     pop cx
+    240	0216  5B				     pop bx
+    241	0217  58				     pop ax
+    242	0218  C3				     ret
+    243	0219			     UKRflag	     endp
+    244
+    245				     ;===============================================
+    246				     ; ENTER:	     BL	- Key what is waited to	exit
+    247				     ;===============================================
+    248	0219			     KeyExit	     proc
+    249	0219  50				     push AX
+    250	021A  E4 60				     @@NotThisKey:   in	AL, 60h
+    251
+    252	021C  3A C3				     cmp AL, BL
+    253	021E  75 FA				     jne @@NotThisKey
+    254	0220  58				     pop AX
+    255
+    256	0221  C3				     ret
+    257	0222			     KeyExit	     endp
+    258
+    259				     end Start
+Turbo Assembler	 Version 4.1	    03/02/20 08:34:51	    Page 6
 Symbol Table
 
 
@@ -143,11 +292,22 @@ Symbol Name			  Type	 Value
 
 ??DATE				  Text	 "03/02/20"
 ??FILENAME			  Text	 "ramka	  "
-??TIME				  Text	 "05:19:47"
+??TIME				  Text	 "08:34:51"
 ??VERSION			  Number 040A
 @32BIT				  Text	 0
-@@NEXT				  Near	 DGROUP:0136
-@@NEXTLINE			  Near	 DGROUP:014D
+@@BOTTOMFLAG			  Near	 DGROUP:0207
+@@ENDMARK			  Near	 DGROUP:01DE
+@@ENDREAMER			  Near	 DGROUP:01B4
+@@HEREWEGOAGAIN			  Near	 DGROUP:0177
+@@LITTLEDI			  Near	 DGROUP:01D6
+@@MAXHEIGHT			  Near	 DGROUP:0190
+@@MAXWIDTH			  Near	 DGROUP:0185
+@@NEXT				  Near	 DGROUP:0129
+@@NEXTLINE			  Near	 DGROUP:0140
+@@NOTTHISKEY			  Near	 DGROUP:021A
+@@PRINTIFOK			  Near	 DGROUP:0195
+@@SKIPEND			  Near	 DGROUP:01AF
+@@TOPFLAG			  Near	 DGROUP:01F4
 @CODE				  Text	 DGROUP
 @CODESIZE			  Text	 0
 @CPU				  Text	 0101H
@@ -159,17 +319,22 @@ Symbol Name			  Type	 Value
 @MODEL				  Text	 1
 @STACK				  Text	 DGROUP
 @WORDSIZE			  Text	 2
-BOXPRINT			  Near	 DGROUP:013D
+BOXPRINT			  Near	 DGROUP:0130
+BOXREAMER			  Near	 DGROUP:0177
 CONSTCOLOR			  Number 009E
 CONSTCUBE			  Number 00DB
 CONSTGRAPH			  Number B800
 CONSTPHRASECLR			  Number 000F
-PRINTLINE			  Near	 DGROUP:0130
+KEYEXIT				  Near	 DGROUP:0219
+LITTLESLEEP			  Near	 DGROUP:01B5
+NEWPOSOFBOX			  Near	 DGROUP:01C6
+PRINTLINE			  Near	 DGROUP:0123
 START				  Near	 DGROUP:0100
+UKRFLAG				  Near	 DGROUP:01DF
 
 Groups & Segments		  Bit Size Align  Combine Class
 
 DGROUP				  Group
   _DATA				  16  0000 Word	  Public  DATA
-  _TEXT				  16  0184 Word	  Public  CODE
+  _TEXT				  16  0222 Word	  Public  CODE
 

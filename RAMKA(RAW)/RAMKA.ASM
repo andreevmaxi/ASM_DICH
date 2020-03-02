@@ -15,21 +15,16 @@ org 100h
 
 Start:		mov DI, ConstGraph
 		mov ES, DI
-		mov DI, 38d*2d + 80d*2d*11d
+		mov DI, 37d*2d + 80d*2d*11d
 		push DI
 		mov AL, ConstCube
 		mov AH, ConstColor
 		mov BX, AX
-		mov CX, 1d
-		mov DL, 1d
+		mov CX, 1
+		mov DL, 1
 		mov DH, 80d
 		call BoxReamer
-		call UKRflag
-		pop DI
-		mov BL, 1Ch
-		call KeyExit      
-		ret
-		
+
 ;=========================================================
 ; ENTRY:	AL - char of first and last symbol of line 
 ;		AH - color of first symbol
@@ -76,12 +71,12 @@ BoxPrint	proc
                 push AX
 		push BX
 		mov AX, BX
-		mov BX, 0d
+		mov BX, 0
 		push CX
 		mov CL, DL
-		mov CH, 0d
+		mov CH, 0
 		@@NextLine:	push CX
-				mov CX, 0d
+				mov CX, 0
 				mov CL, DH
 				add DI, CX ; DH
 				add DI, CX
@@ -89,14 +84,14 @@ BoxPrint	proc
 				mov DL, CL
 				pop CX
 				sub DI, CX
-				sub DI, 4d
+				sub DI, 4
 				sub DI, CX
 				call PrintLine
 				push CX
-				mov CH, 0d
+				mov CH, 0
 				mov CL, DL; DL
 		LOOP @@NextLine
-		mov CX, 0d
+		mov CX, 0
 		mov CL, DH
 		add DI, CX
 		add DI, CX
@@ -106,7 +101,7 @@ BoxPrint	proc
 		pop DX
 		sub DI, CX
 		sub DI, CX
-		sub DI, 4d
+		sub DI, 4
 		call PrintLine	
 		ret
 BoxPrint	endp
@@ -124,20 +119,20 @@ BoxPrint	endp
 ; DESTR:	CX, DX
 ;========================================================
 BoxReamer	proc
-		@@HereWeGoAgain:	push DI ; to save the line number 
-		cmp CX, 78d ; check CX to not to went out from the line
+		push DI ; to save the line number 
+		cmp CX, 78 ; check CX to not to went out from the line
 		jae @@MaxWidth ; if CX is went out
-		cmp DL, 23d ; check DL to not to went out from the cmd
+		cmp DL, 24 ; check DL to not to went out from the cmd
 		jae @@MaxHeight ; if DL went out
 		jmp @@PrintIfOK ; if Checks were good               
 
-		@@MaxWidth:	mov CX, 78d ; If cx, > 78, then we need to write, but only 1    
-				cmp DL, 23d ; here we check DL
-				ja @@MaxHeight ; if DL > 23
-				jmp @@PrintIfOK ; If Checks were good
+		@@MaxWidth:	mov CX, 78 ; If cx, > 79, then we need to write, but only 1    
+				cmp DL, 24 ; here we check DL
+				jae @@MaxHeight ; if DL > 24
+				jmp PrintIFOK ; If Checks were good
 		
-		@@MaxHeight:	mov DL, 23d   ; if DL, > 23, like 24, then we need to write
-				jmp @@PrintIfOK ; JUST PRINT!
+		@@MaxHeight:	mov DL, 24   ; if DL, > 24, like 25, then we need to write
+				jmp PrintIfOK ; JUST PRINT!
 		                   	
 		@@PrintIfOK:	call BoxPrint  ; here we write, when everything is done
 				pop DI
@@ -148,14 +143,14 @@ BoxReamer	proc
 			
 				call NewPosOfBox ; Changes DI to position we need
 
-				cmp DL, 24d
-				jbe @@SkipEnd ; If < then we didn't wrote the last box
-				cmp CX, 79d
-				jbe @@SkipEnd ; if <= then we didn't wrote the last box
+				cmp DL, 25
+				jae @@SkipEnd ; If < then we didn't wrote the last box
+				cmp CX, 79
+				jae @@SkipEnd ; if <= then we didn't wrote the last box
 				jmp @@EndReamer ; We ended writing
 		
-				@@SkipEnd:	call LittleSleep   ; We wait to see a progress
-						jmp @@HereWeGoAgain; we start writing again
+				@@SkipEnd:	call SleepHalfSec  ; We wait to see a progress
+						jmp BoxReamer ; we start writing again
 		
 		@@EndReamer:	ret
 BoxReamer	endp
@@ -164,21 +159,20 @@ BoxReamer	endp
 ; JUST AN INTERAPTION IN A HALF OF SEC
 ;=============================================================        	
 
-LittleSleep     proc
+SleepHalfSec    proc
 
-		push AX 
-		push DX
-		push CX    
+		push AX
+		push BX 
+		push DX    
 		mov ah, 86h
-		mov CX, 0002H
+		mov CX, 0007H
 		mov DX, 9090H
-		int 15h
-		pop CX 
+		int 15h 
 		pop DX
+		pop BX
 		pop AX
 
-		ret
-LittleSleep 	endp
+SleepSec	endp
 
 ;===============================================================
 ; ENTRY: DI - position of prev box
@@ -198,62 +192,4 @@ NewPosOfBox	proc
 		@@EndMark: 	ret		
 NewPosOfBox	endp
 
-;========================================================
-; ENTRY:	ES - block of videomemory	
-;
-; JUST writes a typical ukrain flag
-;======================================
-UKRflag		proc
-                push ax
-		push bx
-		push cx
-		push dx
-		push di
-
-		mov DI, 0h
-		mov DL, 78d
-		mov CX, 13d ; all 23d  
-		mov DH, 80d
-		mov AL, ConstCube
-		mov AH, 09h
-		mov BX, AX
-		@@TopFlag:	push CX
-				mov CX, 0
-				mov CL, DL
-				call PrintLine
-				pop CX
-		loop @@TopFlag
-
-		mov AH, 0Eh
-		mov BH, AH
-		mov CX, 12d
-		@@BottomFlag:	push CX
-				mov CX, 0
-				mov CL, DL
-				call PrintLine
-				pop CX
-		loop @@BottomFlag
-
-		pop di
-		pop dx
-		pop cx
-		pop bx
-		pop ax
-		ret
-UKRflag		endp
-
-;===============================================
-; ENTER:	BL - Key what is waited to exit
-;===============================================
-KeyExit		proc
-		push AX
-		@@NotThisKey:	in AL, 60h     
-
-		cmp AL, BL
-		jne @@NotThisKey
-		pop AX            
-
-		ret
-KeyExit		endp	
-                        
 end Start
