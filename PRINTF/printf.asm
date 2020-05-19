@@ -3,16 +3,15 @@ section .text
 global _start
 
 _start: 
-    mov rbp, rsp                       ; for easy debugging
+    mov rbp, rsp                        ; for easy debugging
     
     mov rsi, PRINT_STR                  ; our format string
     push 256                            ; third argument
     push 1                              ; second argument
     push SECOND_STR                     ; first argument
-    
     call PRINTF                         ; calling our gangSTARs function 
     add rsp, 24                         ; skipping our arguments, because for printf
-                                        ; usually uses cdecl to avoid programmers mistackes
+                                        ; usually use cdecl to avoid programmers mistackes
 
     mov rax, 60d                        ; exit system call
     xor rdi, rdi                        ; 0 exit code
@@ -21,9 +20,9 @@ _start:
 ;==================================================================================================
 ;   Printing string in cmd
 ;
-;   input:  rsi - address of format string
-;   output: -
-;   destr:  rsi, rdi, rax, rbx, rcx, rdx, r8, r9, r10, r11, r12
+;   ENTRY:  rsi - address of format string
+;   EXIT: -
+;   DESTR:  rsi, rdi, rax, rbx, rcx, rdx, r8, r9, r10, r11, r12
 ;==================================================================================================
 PRINTF:
     push rbp                            ; stack frame
@@ -34,11 +33,9 @@ PRINTF:
     call STRLEN
 
     mov r11, r12                        ; r11 = start of buffer
-
     xor rbx, rbx                        ; rbx = 0
     inc rbx                             ; for skipping return adress
     inc rbx                             ; for skipping rbp saving
-    
     mov rdi, rsi                        ; rdi = adress of format string
     PROCESSING:
         mov rsi, rdi                    ; rsi = start of our progress
@@ -46,20 +43,17 @@ PRINTF:
         cld
         mov al, '%'                     ; for searching next flag
         repne scasb                     ; finding next % or end of the string
-
         mov r8, rdi                     ; =
         sub r8, rsi                     ; =
         dec r8                          ; r8 = number of elemens between now progress and next @
 
         mov r9, rdi                     ; saving rdi...
         mov rdi, r11                    ; picking rdi to write in buffer
-
         cmp rcx, 0                      ; if we are at the end of string than we exit
         je .LAST_STAP
 
         mov r10, rcx                    ; saving rcx...
         mov rcx, r8                     ; rcx = number of elemmens between now progress and next @
-
         mov al, [r9]                    ; comparing flags
         xor rdx, rdx                    ; if %% flag, than our flag adress operand = 0. 
         cmp al, '%'                     ; if ==, than we need to jmp to % print
@@ -91,26 +85,24 @@ PRINTF:
 ;==================================================================================================
 ;   Prints chars from flag in buffer
 ;
-;   input:  al  - char of our flag
+;   ENTRY:  al  - char of our flag
 ;           r12 - start of buffer
-;           rcx - number chars to write in buffer
+;           rcx - number chars to write in buffer before next %
 ;           rdi - end of buffer
 ;           rsi - adress of format str
 ;           rdx - adress of now operand
 ;           
-;   output: rdi - end of buffer
-;   destr:  r8, rax, rcx, rsi, rdi
+;   EXIT:   rdi - end of buffer
+;   DESTR:  r8, rax, rcx, rsi, rdi
 ;==================================================================================================
 FLAG_PRINT:
     push rsi                        ; =
     push rax                        ; =
-    push rdx                        ; =
-    push rcx                        ; quicksaving...
+    push rdx                        ; quicksaving...
 
     mov rdx, rcx                    ; =
     call CHECK_CAP                  ; cheking capasity
 
-    pop rcx                         ; =
     pop rdx                         ; =
     pop rax                         ; =
     pop rsi                         ; loading back our registers
@@ -231,11 +223,11 @@ FLAG_PRINT:
 ;==================================================================================================
 ;   Checks if buffer can fit chars in it
 ;
-;   input:  rdi - ending of buffer
+;   ENTRY:  rdi - ending of buffer
 ;           r12 - start of buffer
 ;           rdx - new chars number
-;   output: rdi - ending of buffer
-;   destr:  rax, rsi, rcx
+;   EXIT:   rdi - ending of buffer
+;   DESTR:  rax, rsi, rcx
 ;==================================================================================================
 CHECK_CAP:
     mov rsi, r12                    ; rsi = adr buffer
@@ -258,9 +250,9 @@ CHECK_CAP:
 ;==================================================================================================
 ;   Writes full buffer symbol to cmd
 ;
-;   input:  rsi - adress of buffer
-;   output: -
-;   destr:  rax, rcx, rdx, rsi, rdi
+;   ENTRY:  rsi - adress of buffer
+;   EXIT:   -
+;   DESTR:  rax, rcx, rdx, rsi, rdi
 ;==================================================================================================
 BUFFER_PRINT:
     mov rdi, rsi                    ; rdi = rsi for scasb
@@ -274,11 +266,11 @@ BUFFER_PRINT:
 ;==================================================================================================
 ;   Translates integer to string
 ;
-;   input:  rax - number
+;   ENTRY:  rax - number
 ;           rsi - number buff
 ;           rcx - number system
-;   output: rdx - length of number string  
-;   destr:  rsi, rcx, rax
+;   EXIT:   rdx - length of number string  
+;   DESTR:  rsi, rcx, rax
 ;==================================================================================================
 INT_TO_STR:
     .begin:
@@ -299,12 +291,12 @@ INT_TO_STR:
 ;==================================================================================================
 ;   Translates number(with __divided by 2 number__ system) to string
 ;
-;   input:  rax - number
+;   ENTRY:  rax - number
 ;           rsi - number buff
 ;           cl  - i, where is (2^i - number system)
 ;           r11 - 2^i - 1, to absorb bits of our number          
-;   output: rdx - length of number string  
-;   destr:  rsi, rcx, rax, rdx
+;   EXIT:   rdx - length of number string  
+;   DESTR:  rsi, rcx, rax, rdx
 ;==================================================================================================
 DB2_TO_STR:
     .begin:
@@ -325,10 +317,10 @@ DB2_TO_STR:
 ;==================================================================================================
 ;   Printing our reverced number in string
 ;
-;   input:  rdx - length of our number in string
+;   ENTRY:  rdx - length of our number in string
 ;           rdi - our string in which is writing
-;   output: -
-;   destr:  rax
+;   EXIT:   -
+;   DESTR:  rax
 ;==================================================================================================
 REV_PRINT_INT:
     .begin:
@@ -342,9 +334,9 @@ REV_PRINT_INT:
 ;==================================================================================================
 ;   Counts chars in string
 ;
-;   input:  rdi - adress of string
-;   output: rcx - length of string
-;   destr:  rax, rdi
+;   ENTRY:  rdi - adress of string
+;   EXIT:   rcx - length of string
+;   DESTR:  rax, rdi
 ;==================================================================================================
 STRLEN:
     cld                 ; to go in a positive direction
