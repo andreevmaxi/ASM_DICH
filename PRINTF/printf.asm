@@ -1,21 +1,5 @@
 section .text
-
-global _start
-
-_start: 
-    mov rbp, rsp                        ; for easy debugging
-    
-    mov rsi, PRINT_STR                  ; our format string
-    push 256                            ; third argument
-    push 1                              ; second argument
-    push SECOND_STR                     ; first argument
-    call PRINTF                         ; calling our gangSTARs function 
-    add rsp, 24                         ; skipping our arguments, because for printf
-                                        ; usually use cdecl to avoid programmers mistackes
-
-    mov rax, 60d                        ; exit system call
-    xor rdi, rdi                        ; 0 exit code
-    syscall                             ; shutting down the program
+global PRINTF
 
 ;==================================================================================================
 ;   Printing string in cmd
@@ -50,7 +34,7 @@ PRINTF:
         mov r9, rdi                     ; saving rdi...
         mov rdi, r11                    ; picking rdi to write in buffer
         cmp rcx, 0                      ; if we are at the end of string than we exit
-        je .LAST_STAP
+        je .LAST_STEP
 
         mov r10, rcx                    ; saving rcx...
         mov rcx, r8                     ; rcx = number of elemmens between now progress and next @
@@ -71,7 +55,7 @@ PRINTF:
         dec rcx                         ; because we proceded flag char
         jmp PROCESSING                  ; because we did everything we needed to do in this part of format
 
-        .LAST_STAP:
+        .LAST_STEP:
             inc r8                      ; because in scasb we got 0, but we decrised it(if it's empty)
             mov rcx, r8                 ; rcx = number of last symbols
             cld
@@ -80,6 +64,11 @@ PRINTF:
 
         mov rsi, BUFFER                 ; retrieving the buffer pointer
         call BUFFER_PRINT               ; writing the last chars
+        mov rdi, r12                    ; =
+        xor rax, rax                    ; =
+        mov rcx, BSIZE                  ; =
+        rep stosb                       ; clearing buffer
+
         ret
 
 ;==================================================================================================
@@ -135,9 +124,17 @@ FLAG_PRINT:
         ret
     
     ERR:
-        mov rdi, ERR_STR            ; str = ERR_STR
-        call STR                    ; print sign str of error in buff
+        mov rcx, 5                  ; rcx = length of ERR_STR
+
+        mov rdx, 5                  ; rdx = length for CHECK_CAP
+        mov r8, rdi                 ; =         
+        call CHECK_CAP              ; checking fit 
+
+        mov rsi, ERR_STR            ; rsi = adr of sign
+        mov rdi, r8                 ; loading rdi
+        rep movsb                   ; print sign str of error in buff
         ret
+
     STR:
         mov r8, rdi                 ; saving rdi
         mov rdi, [rdx]              ; rdi = adr of str
@@ -215,9 +212,9 @@ FLAG_PRINT:
         call CHECK_CAP              ; rdi = buffer, rdx = new number of chars
         pop rdx
 
-        mov rcx, rdx                ; rcx = rdx
+        mov rcx, rdx                    ; rcx = rdx
         lea rdx, [INTBUFF + rcx - 1]    ; rdx = INTBUFF
-        call REV_PRINT_INT          ; printing in buffer reversed number
+        call REV_PRINT_INT              ; printing in buffer reversed number
         ret
 
 ;==================================================================================================
@@ -356,7 +353,7 @@ BUFFER:         times BSIZE db 0
 INTBUFF:        times INTSIZE db 0
 NUMBERLIST      db "0123456789ABCDEF", 0
 
-ERR_STR         db "\\ERR\\", 0
+ERR_STR         db "!ERR!", 0
 JTABLE  dq 0
                 dq BIN
                 dq CHAR
@@ -368,5 +365,3 @@ JTABLE  dq 0
                 times ('w' - 's') dq ERR
                 dq HEX
 
-PRINT_STR       db "Korob.%s is the %dst of the coolest domens in %x%% counties!", 0h      
-SECOND_STR      db "com", 0
