@@ -51,7 +51,8 @@ KeyLogInt       proc
 		mov di, (2d*80d + 4d + 80d - 10d)*2d  
 		cld                 
 		call ScanPrint 
-		
+		call Shining
+
 		pop es di dx cx bx ax
 			
 			db 0eah             	
@@ -142,7 +143,23 @@ HexToChar	proc
 		jmp @@Exit  
 @@Exit:		ret
 HexToChar	endp
-     		
+
+;=========================================================
+; Shining bits to transfer to controller
+; that we read the info and we're ready
+; DESTR - ax                                             
+;=========================================================
+
+Shining proc
+		in al, 61h
+         	mov ah, al
+	        or al, 80h
+		out 61h, al
+		mov al, ah
+		out 61h, al
+
+		ret
+Shining		endp     		
 ;=========================================================
 ; ENTRY:	AL - char of first and last symbol of line 
 ;		AH - color of first symbol
