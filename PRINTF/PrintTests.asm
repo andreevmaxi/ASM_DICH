@@ -106,8 +106,6 @@ RAW_STRLEN:
 
 section .data
 
-OK_STR            db "Test#%d - passed", 10d, 13d, 10d, 13d, 0h
-
 TEST_1            db "Korob.%s is the %dst of the coolest domens in %x%% counties!", 10d, 13d, 0h      
 TEST_1.1_ARG      db "com", 0h
 ANS_1             db "Korob.com is the 1st of the coolest domens in 100% counties!", 10d, 13d, 10d, 13d, 0h
