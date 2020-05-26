@@ -37,9 +37,9 @@ void MakeFile(const char* FileName, char* Code, size_t CodeSize) {
   free(Code);
 }
 
-void solve() {
+int main(){
   char* code = nullptr;
-  size_t CodeSize = ScanBuff("C:\\Users\\MI Pro-15\\Desktop\\CrackMe.out", &code);
+  size_t CodeSize = ScanBuff("CrackMe.out", &code);
   assert(code != nullptr);
 
   printf("CodeSize: %d\n", CodeSize);
@@ -48,19 +48,15 @@ void solve() {
 
   int i=0;
   while(i < CodeSize && !Hacked) {
-    printf("%08d: %02x\n", i, (unsigned char)code[i]);
-    if (code[i] == 117) {                               
-      code[i] = (unsigned char)116;                     
+    printf("%08d: %02xh (%c)\n", i, (unsigned char)code[i], code[i]);
+    if (code[i] == 117) {
+      code[i] = (unsigned char)116;
       printf(";-------------------------\nCheck found: %d\n",i);
       Hacked = true;
     }
     ++i;
   }
 
-  MakeFile("C:\\Users\\MI Pro-15\\Desktop\\CrackMe_hack.out", code, CodeSize);
-}
-
-int main(){
-  solve();
+  MakeFile("CrackMe_hack.out", code, CodeSize);
   return 0;
 }
